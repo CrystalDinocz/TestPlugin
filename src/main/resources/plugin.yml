@@ -1,0 +1,6 @@
+name: testplugin1
+version: '1.0-SNAPSHOT'
+main: org.cyril.testplugin1.Testplugin1
+api-version: '1.21'
+author: "CrystalDino"
+description: "test plugin"
