@@ -27,11 +27,11 @@ public class TriggerEvents implements Listener {
         itemmeta.setLore(description);
         event.getPlayer().getInventory().getItem(8).setItemMeta(itemmeta);
     }
-    public void remove(String user) {
-        Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(user), "execute as @s run tag @s remove diamond");
-        Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(user), "execute as @s run tag @s remove emerald");
-        Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(user), "execute as @s run tag @s remove gold");
-        Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(user), "execute as @s run tag @s remove iron");
+    public void remove(String user, InventoryClickEvent event) {
+        event.getWhoClicked().removeScoreboardTag("diamond");
+        event.getWhoClicked().removeScoreboardTag("emerald");
+        event.getWhoClicked().removeScoreboardTag("iron");
+        event.getWhoClicked().removeScoreboardTag("gold");
         Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(user),"playsound minecraft:block.lever.click ambient @s ~ ~ ~ 100 2");
     }
     @EventHandler
@@ -97,24 +97,24 @@ public class TriggerEvents implements Listener {
             if(event.getInventory().getItem(16).getItemMeta().getDisplayName().equals("§bDiamond")) {
                 try {
                     if (event.getCurrentItem().getType() == Material.DIAMOND) {
-                        remove(name);
-                        Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(name), "execute as @s run tag @s add diamond");
-                        Bukkit.broadcastMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                        remove(name, event);
+                        event.getWhoClicked().getScoreboardTags().add("diamond");
+                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                     }
                     if (event.getCurrentItem().getType() == Material.EMERALD) {
-                        remove(name);
-                        Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(name), "execute as @s run tag @s add emerald");
-                        Bukkit.broadcastMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                        remove(name, event);
+                        event.getWhoClicked().getScoreboardTags().add("emerald");
+                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                     }
                     if (event.getCurrentItem().getType() == Material.GOLD_INGOT) {
-                        remove(name);
-                        Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(name), "execute as @s run tag @s add gold");
-                        Bukkit.broadcastMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                        remove(name, event);
+                        event.getWhoClicked().getScoreboardTags().add("gold");
+                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                     }
                     if (event.getCurrentItem().getType() == Material.IRON_INGOT) {
-                        remove(name);
-                        Bukkit.getServer().dispatchCommand(Bukkit.getPlayer(name), "execute as @s run tag @s add iron");
-                        Bukkit.broadcastMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                        remove(name, event);
+                        event.getWhoClicked().getScoreboardTags().add("iron");
+                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                     }
                 } catch (NullPointerException ignored) {
                 }
