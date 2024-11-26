@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -30,15 +29,13 @@ public class TriggerEvents implements Listener {
         event.getPlayer().getInventory().getItem(8).setItemMeta(itemmeta);
     }
     public void remove(InventoryClickEvent event) {
-        event.getWhoClicked().removeScoreboardTag("diamond");
-        event.getWhoClicked().removeScoreboardTag("emerald");
-        event.getWhoClicked().removeScoreboardTag("iron");
-        event.getWhoClicked().removeScoreboardTag("gold");
+        event.getWhoClicked().removeScoreboardTag("raycast");
         event.getWhoClicked().removeScoreboardTag("slash");
+        event.getWhoClicked().removeScoreboardTag("fireball");
         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
     }
     @EventHandler
-    public void onRightClick(PlayerInteractEvent event) {
+    public void onRightClick(PlayerInteractEvent event) throws InterruptedException {
         String action = String.valueOf(event.getAction());
         if (event.hasItem()) {
             Material rc = Objects.requireNonNull(event.getItem()).getType();
@@ -49,21 +46,21 @@ public class TriggerEvents implements Listener {
             }
             if (rc == Material.NETHER_STAR && event.getItem().getItemMeta().getDisplayName().equals("§aMenu §7(Right Click)")) {
                 Inventory menu = Bukkit.createInventory(null, 27, "Menu");
-                menu.setItem(10, new ItemStack(Material.IRON_INGOT));
+                menu.setItem(10, new ItemStack(Material.FIRE_CHARGE));
                 ItemMeta itemmeta1 = menu.getItem(10).getItemMeta();
-                itemmeta1.setDisplayName("§7Iron");
-                menu.setItem(12, new ItemStack(Material.GOLD_INGOT));
+                itemmeta1.setDisplayName("§bMana Lance");
+                menu.setItem(12, new ItemStack(Material.IRON_SWORD));
                 ItemMeta itemmeta2 = menu.getItem(12).getItemMeta();
-                itemmeta2.setDisplayName("§6Gold");
-                menu.setItem(14, new ItemStack(Material.EMERALD));
+                itemmeta2.setDisplayName("§cSlash");
+                menu.setItem(14, new ItemStack(Material.BARRIER));
                 ItemMeta itemmeta3 = menu.getItem(14).getItemMeta();
-                itemmeta3.setDisplayName("§aEmerald");
-                menu.setItem(16, new ItemStack(Material.DIAMOND));
+                itemmeta3.setDisplayName("§4§kWIPAL");
+                menu.setItem(16, new ItemStack(Material.BARRIER));
                 ItemMeta itemmeta4 = menu.getItem(16).getItemMeta();
-                itemmeta4.setDisplayName("§bDiamond");
-                menu.setItem(22, new ItemStack(Material.IRON_SWORD));
+                itemmeta4.setDisplayName("§4§kWIPAL");
+                menu.setItem(22, new ItemStack(Material.CARROT_ON_A_STICK));
                 ItemMeta itemmeta5 = menu.getItem(22).getItemMeta();
-                itemmeta5.setDisplayName("§cSlash");
+                itemmeta5.setDisplayName("§6Raycast");
                 menu.getItem(10).setItemMeta(itemmeta1);
                 menu.getItem(12).setItemMeta(itemmeta2);
                 menu.getItem(14).setItemMeta(itemmeta3);
@@ -99,32 +96,26 @@ public class TriggerEvents implements Listener {
             event.setCancelled(true);
             event.getCurrentItem().setAmount(1);
         }
-        if (event.getInventory().getSize() == 27 && event.getInventory().getItem(16) != null) {
-            if(event.getInventory().getItem(16).getItemMeta().getDisplayName().equals("§bDiamond")) {
+        if (event.getInventory().getSize() == 27 && event.getInventory().getItem(10) != null) {
+            if(event.getInventory().getItem(10).getItemMeta().getDisplayName().equals("§bMana Lance")) {
                 try {
-                    if (event.getCurrentItem().getType() == Material.DIAMOND) {
-                        remove(event);
-                        event.getWhoClicked().getScoreboardTags().add("diamond");
-                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                    if (event.getCurrentItem().getType() == Material.BARRIER) {
+                        event.getWhoClicked().sendMessage("§4Work in Progress");
+                        Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_BAMBOO_WOOD_DOOR_OPEN, SoundCategory.AMBIENT, 100, 0.5F);
                     }
-                    if (event.getCurrentItem().getType() == Material.EMERALD) {
+                    if (event.getCurrentItem().getType() == Material.CARROT_ON_A_STICK) {
                         remove(event);
-                        event.getWhoClicked().getScoreboardTags().add("emerald");
-                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
-                    }
-                    if (event.getCurrentItem().getType() == Material.GOLD_INGOT) {
-                        remove(event);
-                        event.getWhoClicked().getScoreboardTags().add("gold");
-                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
-                    }
-                    if (event.getCurrentItem().getType() == Material.IRON_INGOT) {
-                        remove(event);
-                        event.getWhoClicked().getScoreboardTags().add("iron");
+                        event.getWhoClicked().getScoreboardTags().add("raycast");
                         event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                     }
                     if (event.getCurrentItem().getType() == Material.IRON_SWORD) {
                         remove(event);
                         event.getWhoClicked().getScoreboardTags().add("slash");
+                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                    }
+                    if (event.getCurrentItem().getType() == Material.FIRE_CHARGE) {
+                        remove(event);
+                        event.getWhoClicked().getScoreboardTags().add("fireball");
                         event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                     }
                 } catch (NullPointerException ignored) {
