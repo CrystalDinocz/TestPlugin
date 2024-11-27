@@ -2,15 +2,88 @@ package org.cyril.testplugin1;
 
 import org.bukkit.*;
 import org.bukkit.entity.*;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Raycast {
+    public static void Meteor(String name) {
+        Player player = Bukkit.getPlayer(name);
+        for (int i = 1; i < 21; i++) {
+            try {
+                Location targetloc = player.getTargetBlockExact(i).getLocation();
+                targetloc.add(0.5,11,0.5);
+                FallingBlock meteorblock = player.getWorld().spawnFallingBlock(targetloc, Material.MAGMA_BLOCK, (byte) 0);
+                BukkitTask Repeat = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Location meteorlocation = meteorblock.getLocation();
+                        player.getWorld().spawnParticle(Particle.LAVA, meteorlocation, 2,0,0,0,0);
+                        player.getWorld().spawnParticle(Particle.FLAME, meteorlocation, 1,0,0,0,0);
+                        if (meteorlocation.subtract(0,0.8,0).getBlock().getType().isSolid()) {
+                            List<Entity> meteorhit = meteorblock.getNearbyEntities(2,2,2);
+                            meteorblock.remove();
+                            player.getWorld().playSound(player, Sound.ENTITY_GENERIC_EXPLODE, 100,0);
+                            player.getWorld().spawnParticle(Particle.EXPLOSION, meteorlocation, 10,1,1,1,0.5);
+                            for (Entity n : meteorhit) {
+                                if (n instanceof LivingEntity) {
+                                    n.setVelocity(new Vector(0, 0.6, 0));
+                                    int iframes = ((LivingEntity) n).getMaximumNoDamageTicks();
+                                    ((LivingEntity) n).setMaximumNoDamageTicks(0);
+                                    player.sendMessage("Hit an entity: " + n.getType());
+                                    ((LivingEntity) n).damage(50);
+                                    ((LivingEntity) n).setMaximumNoDamageTicks(iframes);
+                                }
+                            }
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(Testplugin1.getInstance(), 0,1);
+                break;
+            } catch (NullPointerException e) {
+                if(i == 20) {
+                    Location airlocation = player.getLocation().add(player.getLocation().getDirection().multiply(i));
+                    int y2 = (int) player.getLocation().getY();
+                    airlocation.setY(y2+10);
+                    double x2 = ((int) airlocation.getX()) + 0.5;
+                    double z2 = ((int) airlocation.getZ()) + 0.5;
+                    airlocation.setX(x2);
+                    airlocation.setZ(z2);
+                    FallingBlock meteorblock = player.getWorld().spawnFallingBlock(airlocation, Material.MAGMA_BLOCK, (byte) 0);
+                    BukkitTask Repeat = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Location meteorlocation = meteorblock.getLocation();
+                            player.getWorld().spawnParticle(Particle.LAVA, meteorlocation, 2,0,0,0,0);
+                            player.getWorld().spawnParticle(Particle.FLAME, meteorlocation, 1,0,0,0,0);
+                            if (meteorlocation.subtract(0,0.8,0).getBlock().getType().isSolid()) {
+                                List<Entity> meteorhit = meteorblock.getNearbyEntities(2,2,2);
+                                meteorblock.remove();
+                                player.getWorld().playSound(player, Sound.ENTITY_GENERIC_EXPLODE, 100,0);
+                                player.getWorld().spawnParticle(Particle.EXPLOSION, meteorlocation, 10,1,1,1,0.5);
+                                for (Entity n : meteorhit) {
+                                    if (n instanceof LivingEntity) {
+                                        n.setVelocity(new Vector(0, 0.6, 0));
+                                        int iframes = ((LivingEntity) n).getMaximumNoDamageTicks();
+                                        ((LivingEntity) n).setMaximumNoDamageTicks(0);
+                                        player.sendMessage("Hit an entity: " + n.getType());
+                                        ((LivingEntity) n).damage(50);
+                                        ((LivingEntity) n).setMaximumNoDamageTicks(iframes);
+                                    }
+                                }
+                                cancel();
+                            }
+                        }
+                    }.runTaskTimer(Testplugin1.getInstance(), 0,1);
+                }
+            }
+        }
+    }
     public static void Fireball(String name) throws InterruptedException {
         Player player = Bukkit.getPlayer(name);
-        Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(255, 0, 0), 1);
         Random random = new Random();
         int rndfire = random.nextInt(100000000);
         String rndftag = "fire" + rndfire;
@@ -123,15 +196,19 @@ public class Raycast {
     public static void Command(String name) throws InterruptedException {
         int i = 0;
         List<Entity> block = (new ArrayList<>());
+        if(Bukkit.getPlayer(name).getScoreboardTags().contains("meteor")) {
+            Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ENTITY_BREEZE_SHOOT, SoundCategory.AMBIENT, 100, 0);
+            Meteor(name);
+        }
         if(Bukkit.getPlayer(name).getScoreboardTags().contains("slash")) {
             Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.AMBIENT, 100, 0);
             Slash(name);
         }
-        else if (Bukkit.getPlayer(name).getScoreboardTags().contains("fireball")) {
+        if (Bukkit.getPlayer(name).getScoreboardTags().contains("fireball")) {
             Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ITEM_FIRECHARGE_USE, SoundCategory.AMBIENT, 100, 0.5F);
             Fireball(name);
         }
-        else {
+        if (Bukkit.getPlayer(name).getScoreboardTags().contains("raycast")) {
             mainloop:
             while (i < 24) {
                 block.addAll(Bukkit.selectEntities(Bukkit.getConsoleSender(), "@e[type=minecraft:area_effect_cloud,tag=laser]"));

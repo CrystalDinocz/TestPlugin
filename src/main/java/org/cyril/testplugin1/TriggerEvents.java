@@ -1,9 +1,6 @@
 package org.cyril.testplugin1;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -32,6 +29,7 @@ public class TriggerEvents implements Listener {
         event.getWhoClicked().removeScoreboardTag("raycast");
         event.getWhoClicked().removeScoreboardTag("slash");
         event.getWhoClicked().removeScoreboardTag("fireball");
+        event.getWhoClicked().removeScoreboardTag("meteor");
         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
     }
     @EventHandler
@@ -52,9 +50,9 @@ public class TriggerEvents implements Listener {
                 menu.setItem(12, new ItemStack(Material.IRON_SWORD));
                 ItemMeta itemmeta2 = menu.getItem(12).getItemMeta();
                 itemmeta2.setDisplayName("§cSlash");
-                menu.setItem(14, new ItemStack(Material.BARRIER));
+                menu.setItem(14, new ItemStack(Material.MAGMA_BLOCK));
                 ItemMeta itemmeta3 = menu.getItem(14).getItemMeta();
-                itemmeta3.setDisplayName("§4§kWIPAL");
+                itemmeta3.setDisplayName("§6Meteor");
                 menu.setItem(16, new ItemStack(Material.BARRIER));
                 ItemMeta itemmeta4 = menu.getItem(16).getItemMeta();
                 itemmeta4.setDisplayName("§4§kWIPAL");
@@ -107,6 +105,10 @@ public class TriggerEvents implements Listener {
                         remove(event);
                         event.getWhoClicked().getScoreboardTags().add("raycast");
                         event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                    }if (event.getCurrentItem().getType() == Material.MAGMA_BLOCK) {
+                        remove(event);
+                        event.getWhoClicked().getScoreboardTags().add("meteor");
+                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                     }
                     if (event.getCurrentItem().getType() == Material.IRON_SWORD) {
                         remove(event);
@@ -136,5 +138,10 @@ public class TriggerEvents implements Listener {
         if (event.getPlayer().getItemInHand().getType() == Material.NETHER_STAR){
             event.setCancelled(true);
         }
+        Location blockpos = event.getBlock().getLocation();
+        int x = (int) blockpos.getX();
+        int y = (int) blockpos.getY();
+        int z = (int) blockpos.getZ();
+        event.getPlayer().sendMessage("Breaking block " + event.getBlock().getType() + " at x=" + x + ", y=" + y + ", z=" + z + " for player " + event.getPlayer().getName());
     }
 }
