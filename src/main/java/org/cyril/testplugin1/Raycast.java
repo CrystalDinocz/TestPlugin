@@ -10,6 +10,47 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Raycast {
+    public static void Heal(String name) {
+        Player player = Bukkit.getPlayer(name);
+        World world = player.getWorld();
+        for (double j = 1; j < 7; j = j + 2) {
+            for (double i = 0; i < 44; i = i + 0.5) {
+                double x = Math.sin(i);
+                double z = Math.cos(i);
+                Location clocation = player.getLocation();
+                clocation.add(x * j, 0.1, z * j);
+                world.spawnParticle(Particle.HAPPY_VILLAGER, clocation, 20, 0, 0, 0, 0);
+            }
+        }
+        for (double i = -6; i <= 6; i = i+ 0.5 ) {
+            Location line = player.getLocation();
+            line.add(0,0, i);
+            world.spawnParticle(Particle.HAPPY_VILLAGER, line, 20, 0, 0, 0, 0);
+        }
+        for (double i = -6; i <= 6; i = i + 0.5) {
+            Location line = player.getLocation();
+            line.add(i,0, 0);
+            world.spawnParticle(Particle.HAPPY_VILLAGER, line, 20, 0, 0, 0, 0);
+        }
+        world.spawnParticle(Particle.REVERSE_PORTAL, player.getLocation().add(0,1,0), 200, 0, 0, 0, 1);
+        List<Entity> healed = player.getNearbyEntities(6,6,6);
+        healed.add(player);
+        for (Entity n : healed) {
+            if (n instanceof Player) {
+                Player healplayer = ((Player) n).getPlayer();
+                double currhealth = healplayer.getHealth();
+                double healing = ((Player) n).getHealthScale() - currhealth;
+                if (currhealth <= 10) {
+                    double afterheal = currhealth + 10;
+                    ((Player) n).setHealth(afterheal);
+                    player.sendMessage("Healed player " + healplayer.getName() + " for " + (float) healing + " hp. " + (float) currhealth + " -> " + (float) afterheal);
+                } else {
+                    ((Player) n).setHealth(((Player) n).getHealthScale());
+                    player.sendMessage("Healed player " + healplayer.getName() + " for " + (float) healing + " hp. " + (float) currhealth + " -> 20.0");
+                }
+            }
+        }
+    }
     public static void Meteor(String name) {
         Player player = Bukkit.getPlayer(name);
         for (int i = 1; i < 21; i++) {
@@ -196,6 +237,10 @@ public class Raycast {
     public static void Command(String name) throws InterruptedException {
         int i = 0;
         List<Entity> block = (new ArrayList<>());
+        if(Bukkit.getPlayer(name).getScoreboardTags().contains("heal")) {
+            Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.AMBIENT, 100, 1.5F);
+            Heal(name);
+        }
         if(Bukkit.getPlayer(name).getScoreboardTags().contains("meteor")) {
             Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ENTITY_BREEZE_SHOOT, SoundCategory.AMBIENT, 100, 0);
             Meteor(name);

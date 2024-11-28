@@ -30,6 +30,7 @@ public class TriggerEvents implements Listener {
         event.getWhoClicked().removeScoreboardTag("slash");
         event.getWhoClicked().removeScoreboardTag("fireball");
         event.getWhoClicked().removeScoreboardTag("meteor");
+        event.getWhoClicked().removeScoreboardTag("heal");
         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
     }
     @EventHandler
@@ -53,9 +54,9 @@ public class TriggerEvents implements Listener {
                 menu.setItem(14, new ItemStack(Material.MAGMA_BLOCK));
                 ItemMeta itemmeta3 = menu.getItem(14).getItemMeta();
                 itemmeta3.setDisplayName("§6Meteor");
-                menu.setItem(16, new ItemStack(Material.BARRIER));
+                menu.setItem(16, new ItemStack(Material.GOLDEN_APPLE));
                 ItemMeta itemmeta4 = menu.getItem(16).getItemMeta();
-                itemmeta4.setDisplayName("§4§kWIPAL");
+                itemmeta4.setDisplayName("§aHeal");
                 menu.setItem(22, new ItemStack(Material.CARROT_ON_A_STICK));
                 ItemMeta itemmeta5 = menu.getItem(22).getItemMeta();
                 itemmeta5.setDisplayName("§6Raycast");
@@ -118,6 +119,11 @@ public class TriggerEvents implements Listener {
                     if (event.getCurrentItem().getType() == Material.FIRE_CHARGE) {
                         remove(event);
                         event.getWhoClicked().getScoreboardTags().add("fireball");
+                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                    }
+                    if (event.getCurrentItem().getType() == Material.GOLDEN_APPLE) {
+                        remove(event);
+                        event.getWhoClicked().getScoreboardTags().add("heal");
                         event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                     }
                 } catch (NullPointerException ignored) {
