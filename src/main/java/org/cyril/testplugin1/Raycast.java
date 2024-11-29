@@ -10,8 +10,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Raycast {
+//ABILITIES
     public static void Heal(String name) {
         Player player = Bukkit.getPlayer(name);
+        player.addScoreboardTag("healcooldown");
         World world = player.getWorld();
         for (double j = 1; j < 7; j = j + 2) {
             for (double i = 0; i < 44; i = i + 0.5) {
@@ -50,9 +52,17 @@ public class Raycast {
                 }
             }
         }
+        BukkitTask HealCooldown = new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.removeScoreboardTag("healcooldown");
+                player.sendMessage("§aHeal ability is off cooldown.");
+            }
+        }.runTaskLater(Testplugin1.getInstance(), 150);
     }
     public static void Meteor(String name) {
         Player player = Bukkit.getPlayer(name);
+        player.addScoreboardTag("meteorcooldown");
         for (int i = 1; i < 21; i++) {
             try {
                 Location targetloc = player.getTargetBlockExact(i).getLocation();
@@ -122,9 +132,17 @@ public class Raycast {
                 }
             }
         }
+        BukkitTask MeteorCooldown = new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.removeScoreboardTag("meteorcooldown");
+                player.sendMessage("§aMeteor ability is off cooldown.");
+            }
+        }.runTaskLater(Testplugin1.getInstance(), 200);
     }
-    public static void Fireball(String name) throws InterruptedException {
+    public static void ManaLance(String name) {
         Player player = Bukkit.getPlayer(name);
+        player.addScoreboardTag("mlcooldown");
         Random random = new Random();
         int rndfire = random.nextInt(100000000);
         String rndftag = "fire" + rndfire;
@@ -133,7 +151,7 @@ public class Raycast {
         List<Entity> hitentity = new ArrayList<>();
         String hitselector = String.format("@e[type=!player,tag=!%s,distance=..2.5]", rndftag);
         fireball:
-        for (int i = 1; i < 49; i++) {
+        for (double i = 1; i < 49; i = i + 1.5) {
             String firename = (rndftag + "_" + i);
             String fireray = String.format("execute at %s positioned ~ ~1.2 ~ run summon minecraft:armor_stand ^ ^ ^%s {Invisible:true,Invulnerable:true,NoGravity:true,Tags:[\"%s\"],CustomNameVisible:false,CustomName:'{\"text\":\"%s\"}'}", name, ((float) i/2) + 1, rndftag, firename);
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), fireray);
@@ -154,38 +172,54 @@ public class Raycast {
         hitentity = hitentity.stream().distinct().collect(Collectors.toList());
         List<Entity> fireray1 = Bukkit.selectEntities(Bukkit.getConsoleSender(), fireselector1);
         List<Entity> fireray2 = new ArrayList<>();
-        for (Entity n : fireray1) {
-            String fireselector2 = String.format("@e[tag=!tagged,tag=%s,limit=1,sort=nearest]", rndftag);
-            fireray2.addAll(Bukkit.selectEntities(player, fireselector2));
-            fireray2.get(0).addScoreboardTag("tagged");
-            Location tplocation = fireray2.get(0).getLocation().setDirection(player.getEyeLocation().getDirection());
-            tplocation.add(0,0.42,0);
-            double x = tplocation.getX();
-            double y = tplocation.getY();
-            double z = tplocation.getZ();
-            String particle = String.format("particle minecraft:enchanted_hit %s %s %s 0 0 0 0.2 50 normal", x, y, z);
-            String particle2 = String.format("particle crit %s %s %s 0 0 0 0.08 10 normal", x, y, z);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), particle);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), particle2);
-            fireray2.removeFirst();
-            Thread.sleep(15);
-        }
-        for (Entity n : fireray1) {
-            n.remove();
-        }
-        for (Entity n : hitentity) {
-            if(n instanceof LivingEntity) {
-                Vector base = Bukkit.getPlayer(name).getEyeLocation().getDirection();
-                n.setVelocity(base.multiply(0.8).setY(0.4));
-                int iframes = ((LivingEntity) n).getMaximumNoDamageTicks();
-                ((LivingEntity) n).setMaximumNoDamageTicks(0);
-                Bukkit.getPlayer(name).sendMessage("Hit an entity: " + n.getType());
-                ((LivingEntity) n).damage(35);
-                ((LivingEntity) n).setMaximumNoDamageTicks(iframes);
+        final int[] limit = {1};
+        List<Entity> finalHitentity = hitentity;
+        BukkitTask ParticleRepeat = new BukkitRunnable() {
+            public void run() {
+                if (limit[0] > fireray1.size()) {
+                    for (Entity n : finalHitentity) {
+                        if(n instanceof LivingEntity) {
+                            Vector base = Bukkit.getPlayer(name).getEyeLocation().getDirection();
+                            n.setVelocity(base.multiply(0.8).setY(0.4));
+                            int iframes = ((LivingEntity) n).getMaximumNoDamageTicks();
+                            ((LivingEntity) n).setMaximumNoDamageTicks(0);
+                            Bukkit.getPlayer(name).sendMessage("Hit an entity: " + n.getType());
+                            ((LivingEntity) n).damage(35);
+                            ((LivingEntity) n).setMaximumNoDamageTicks(iframes);
+                        }
+                    }
+                    cancel();
+                } else {
+                    String fireselector2 = String.format("@e[tag=!tagged,tag=%s,limit=1,sort=nearest]", rndftag);
+                    fireray2.addAll(Bukkit.selectEntities(player, fireselector2));
+                    fireray2.get(0).addScoreboardTag("tagged");
+                    Location tplocation = fireray2.get(0).getLocation().setDirection(player.getEyeLocation().getDirection());
+                    tplocation.add(0, 0.42, 0);
+                    double x = tplocation.getX();
+                    double y = tplocation.getY();
+                    double z = tplocation.getZ();
+                    String particle = String.format("particle minecraft:enchanted_hit %s %s %s 0 0 0 0.2 50 normal", x, y, z);
+                    String particle2 = String.format("particle crit %s %s %s 0 0 0 0.08 10 normal", x, y, z);
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), particle);
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), particle2);
+                    fireray2.get(0).remove();
+                    fireray2.removeFirst();
+                    limit[0] = limit[0] + 1;
+                }
             }
-        }
+        }.runTaskTimer(Testplugin1.getInstance(), 0, 0);
+
+        BukkitTask MLCooldown = new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.removeScoreboardTag("mlcooldown");
+                player.sendMessage("§aMana Lance ability is off cooldown.");
+            }
+        }.runTaskLater(Testplugin1.getInstance(), 60);
     }
     public static void Slash(String name) {
+        Player player = Bukkit.getPlayer(name);
+        player.addScoreboardTag("slashcooldown");
         World world = Bukkit.getPlayer(name).getWorld();
         Vector vector = Bukkit.getPlayer(name).getEyeLocation().getDirection().setY(0);
         Location rawlocation = Bukkit.getPlayer(name).getLocation();
@@ -233,25 +267,49 @@ public class Raycast {
                 ((LivingEntity) n).setMaximumNoDamageTicks(iframes);
             }
         }
+        BukkitTask SlashCooldown = new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.removeScoreboardTag("slashcooldown");
+                player.sendMessage("§aSlash ability is off cooldown.");
+            }
+        }.runTaskLater(Testplugin1.getInstance(), 40);
     }
-    public static void Command(String name) throws InterruptedException {
+//TRIGGER
+    public static void Trigger(String name) {
         int i = 0;
         List<Entity> block = (new ArrayList<>());
         if(Bukkit.getPlayer(name).getScoreboardTags().contains("heal")) {
-            Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.AMBIENT, 100, 1.5F);
-            Heal(name);
+            if(Bukkit.getPlayer(name).getScoreboardTags().contains("healcooldown")) {
+                Bukkit.getPlayer(name).sendMessage("§cAbility on cooldown.");
+            } else {
+                Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.AMBIENT, 100, 1.5F);
+                Heal(name);
+            }
         }
         if(Bukkit.getPlayer(name).getScoreboardTags().contains("meteor")) {
-            Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ENTITY_BREEZE_SHOOT, SoundCategory.AMBIENT, 100, 0);
-            Meteor(name);
+            if(Bukkit.getPlayer(name).getScoreboardTags().contains("meteorcooldown")) {
+                Bukkit.getPlayer(name).sendMessage("§cAbility on cooldown.");
+            } else {
+                Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ENTITY_BREEZE_SHOOT, SoundCategory.AMBIENT, 100, 0);
+                Meteor(name);
+            }
         }
         if(Bukkit.getPlayer(name).getScoreboardTags().contains("slash")) {
-            Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.AMBIENT, 100, 0);
-            Slash(name);
+            if(Bukkit.getPlayer(name).getScoreboardTags().contains("slashcooldown")) {
+                Bukkit.getPlayer(name).sendMessage("§cAbility on cooldown.");
+            } else {
+                Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.AMBIENT, 100, 0);
+                Slash(name);
+            }
         }
         if (Bukkit.getPlayer(name).getScoreboardTags().contains("fireball")) {
-            Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ITEM_FIRECHARGE_USE, SoundCategory.AMBIENT, 100, 0.5F);
-            Fireball(name);
+            if(Bukkit.getPlayer(name).getScoreboardTags().contains("mlcooldown")) {
+                Bukkit.getPlayer(name).sendMessage("§cAbility on cooldown.");
+            } else {
+                Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ITEM_FIRECHARGE_USE, SoundCategory.AMBIENT, 100, 0.5F);
+                ManaLance(name);
+            }
         }
         if (Bukkit.getPlayer(name).getScoreboardTags().contains("raycast")) {
             mainloop:

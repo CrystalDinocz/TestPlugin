@@ -34,28 +34,41 @@ public class TriggerEvents implements Listener {
         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
     }
     @EventHandler
-    public void onRightClick(PlayerInteractEvent event) throws InterruptedException {
+    public void onRightClick(PlayerInteractEvent event) {
         String action = String.valueOf(event.getAction());
         if (event.hasItem()) {
             Material rc = Objects.requireNonNull(event.getItem()).getType();
             if (rc == Material.STICK) {
                 if (action != "LEFT_CLICK_AIR" && action != "LEFT_CLICK_BLOCK") {
-                    Raycast.Command(String.valueOf(event.getPlayer().getDisplayName()));
+                    Raycast.Trigger(String.valueOf(event.getPlayer().getDisplayName()));
                 }
             }
             if (rc == Material.NETHER_STAR && event.getItem().getItemMeta().getDisplayName().equals("§aMenu §7(Right Click)")) {
                 Inventory menu = Bukkit.createInventory(null, 27, "Menu");
+                List<String> Lore = new ArrayList<>();
                 menu.setItem(10, new ItemStack(Material.FIRE_CHARGE));
+                Lore.addFirst("§8This ability has a 3 second cooldown.");
                 ItemMeta itemmeta1 = menu.getItem(10).getItemMeta();
+                itemmeta1.setLore(Lore);
+                Lore.clear();
                 itemmeta1.setDisplayName("§bMana Lance");
                 menu.setItem(12, new ItemStack(Material.IRON_SWORD));
+                Lore.addFirst("§8This ability has a 2 second cooldown.");
                 ItemMeta itemmeta2 = menu.getItem(12).getItemMeta();
+                itemmeta2.setLore(Lore);
+                Lore.clear();
                 itemmeta2.setDisplayName("§cSlash");
                 menu.setItem(14, new ItemStack(Material.MAGMA_BLOCK));
+                Lore.addFirst("§8This ability has a 10 second cooldown.");
                 ItemMeta itemmeta3 = menu.getItem(14).getItemMeta();
+                itemmeta3.setLore(Lore);
+                Lore.clear();
                 itemmeta3.setDisplayName("§6Meteor");
                 menu.setItem(16, new ItemStack(Material.GOLDEN_APPLE));
+                Lore.addFirst("§8This ability has a 7.5 second cooldown.");
                 ItemMeta itemmeta4 = menu.getItem(16).getItemMeta();
+                itemmeta4.setLore(Lore);
+                Lore.clear();
                 itemmeta4.setDisplayName("§aHeal");
                 menu.setItem(22, new ItemStack(Material.CARROT_ON_A_STICK));
                 ItemMeta itemmeta5 = menu.getItem(22).getItemMeta();
