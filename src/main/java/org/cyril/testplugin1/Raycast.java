@@ -208,7 +208,6 @@ public class Raycast {
                 }
             }
         }.runTaskTimer(Testplugin1.getInstance(), 0, 0);
-
         BukkitTask MLCooldown = new BukkitRunnable() {
             @Override
             public void run() {
