@@ -1,6 +1,7 @@
 package org.cyril.testplugin1;
 
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -19,6 +20,39 @@ import java.util.Objects;
 
 public class TriggerEvents implements Listener {
 //GUI's
+    public void cheatGUI(InventoryClickEvent event) {
+        Inventory cheatGUI= Bukkit.createInventory(null, 27, "Menu");
+        List<String> Lore = new ArrayList<>();
+        cheatGUI.setItem(10, new ItemStack(Material.GOLDEN_APPLE));
+        Lore.addFirst("§8Set your gamemode to Creative.");
+        ItemMeta itemMeta1 = cheatGUI.getItem(10).getItemMeta();
+        itemMeta1.setLore(Lore);
+        Lore.clear();
+        itemMeta1.setDisplayName("§eCreative");
+        cheatGUI.setItem(12, new ItemStack(Material.APPLE));
+        Lore.addFirst("§8Set your gamemode to Survival.");
+        ItemMeta itemMeta2 = cheatGUI.getItem(12).getItemMeta();
+        itemMeta2.setLore(Lore);
+        Lore.clear();
+        itemMeta2.setDisplayName("§aSurvival");
+        cheatGUI.setItem(14, new ItemStack(Material.RED_CONCRETE));
+        Lore.addFirst("§8Remove 1 Health.");
+        ItemMeta itemMeta3 = cheatGUI.getItem(10).getItemMeta();
+        itemMeta3.setLore(Lore);
+        Lore.clear();
+        itemMeta3.setDisplayName("§4-1HP");
+        cheatGUI.setItem(16, new ItemStack(Material.LIME_CONCRETE));
+        Lore.addFirst("§8Add 1 Health.");
+        ItemMeta itemMeta4 = cheatGUI.getItem(10).getItemMeta();
+        itemMeta4.setLore(Lore);
+        Lore.clear();
+        itemMeta4.setDisplayName("§a+1HP");
+        cheatGUI.getItem(10).setItemMeta(itemMeta1);
+        cheatGUI.getItem(12).setItemMeta(itemMeta2);
+        cheatGUI.getItem(14).setItemMeta(itemMeta3);
+        cheatGUI.getItem(16).setItemMeta(itemMeta4);
+        event.getWhoClicked().openInventory(cheatGUI);
+    }
     public void mainGUI(PlayerInteractEvent event) {
         Inventory mainGUI= Bukkit.createInventory(null, 27, "Menu");
         List<String> Lore = new ArrayList<>();
@@ -52,43 +86,6 @@ public class TriggerEvents implements Listener {
         mainGUI.getItem(14).setItemMeta(skullMeta);
         mainGUI.getItem(16).setItemMeta(itemMeta3);
         event.getPlayer().openInventory(mainGUI);
-    }
-    public void abilityGUI(InventoryClickEvent event) {
-        Inventory abilityGUI = Bukkit.createInventory(null, 27, "Ability Menu");
-        List<String> Lore = new ArrayList<>();
-        abilityGUI.setItem(10, new ItemStack(Material.FIRE_CHARGE));
-        Lore.addFirst("§8This ability has a 3 second cooldown.");
-        ItemMeta itemmeta1 = abilityGUI.getItem(10).getItemMeta();
-        itemmeta1.setLore(Lore);
-        Lore.clear();
-        itemmeta1.setDisplayName("§bMana Lance");
-        abilityGUI.setItem(12, new ItemStack(Material.IRON_SWORD));
-        Lore.addFirst("§8This ability has a 2 second cooldown.");
-        ItemMeta itemmeta2 = abilityGUI.getItem(12).getItemMeta();
-        itemmeta2.setLore(Lore);
-        Lore.clear();
-        itemmeta2.setDisplayName("§cSlash");
-        abilityGUI.setItem(14, new ItemStack(Material.MAGMA_BLOCK));
-        Lore.addFirst("§8This ability has a 10 second cooldown.");
-        ItemMeta itemmeta3 = abilityGUI.getItem(14).getItemMeta();
-        itemmeta3.setLore(Lore);
-        Lore.clear();
-        itemmeta3.setDisplayName("§6Meteor");
-        abilityGUI.setItem(16, new ItemStack(Material.GOLDEN_APPLE));
-        Lore.addFirst("§8This ability has a 7.5 second cooldown.");
-        ItemMeta itemmeta4 = abilityGUI.getItem(16).getItemMeta();
-        itemmeta4.setLore(Lore);
-        Lore.clear();
-        itemmeta4.setDisplayName("§aHeal");
-        abilityGUI.setItem(22, new ItemStack(Material.CARROT_ON_A_STICK));
-        ItemMeta itemmeta5 = abilityGUI.getItem(22).getItemMeta();
-        itemmeta5.setDisplayName("§6Raycast");
-        abilityGUI.getItem(10).setItemMeta(itemmeta1);
-        abilityGUI.getItem(12).setItemMeta(itemmeta2);
-        abilityGUI.getItem(14).setItemMeta(itemmeta3);
-        abilityGUI.getItem(16).setItemMeta(itemmeta4);
-        abilityGUI.getItem(22).setItemMeta(itemmeta5);
-        event.getWhoClicked().openInventory(abilityGUI);
     }
     public void classGUI(InventoryClickEvent event) {
         Inventory classGUI = Bukkit.createInventory(null, 27, "Class Menu");
@@ -282,6 +279,7 @@ public class TriggerEvents implements Listener {
     @EventHandler
     public void onInventoryInteract(InventoryClickEvent event) {
         String name = event.getWhoClicked().getName();
+        Player player = Bukkit.getPlayer(name);
         if(event.getSlot() == 8) {
             event.setCancelled(true);
             event.getCurrentItem().setAmount(1);
@@ -367,7 +365,31 @@ public class TriggerEvents implements Listener {
                         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
                     }
                     if(event.getCurrentItem().getType() == Material.COMMAND_BLOCK) {
-                        event.getWhoClicked().sendMessage("Cheat menu");
+                        cheatGUI(event);
+                        Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
+                    }
+                } catch (NullPointerException ignored) {
+                }
+                event.setCancelled(true);
+            }
+            if(event.getInventory().getItem(10).getItemMeta().getDisplayName().equals("§eCreative")) {
+                try {
+                    if(event.getCurrentItem().getType() == Material.GOLDEN_APPLE) {
+                        event.getWhoClicked().setGameMode(GameMode.CREATIVE);
+                        Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
+                        player.closeInventory();
+                    }
+                    if(event.getCurrentItem().getType() == Material.APPLE) {
+                        event.getWhoClicked().setGameMode(GameMode.SURVIVAL);
+                        Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
+                        player.closeInventory();
+                    }
+                    if(event.getCurrentItem().getType() == Material.RED_CONCRETE) {
+                        player.setHealthScale(player.getHealthScale() - 1);
+                        Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
+                    }
+                    if(event.getCurrentItem().getType() == Material.LIME_CONCRETE) {
+                        player.setHealthScale(player.getHealthScale() + 1);
                         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
                     }
                 } catch (NullPointerException ignored) {
