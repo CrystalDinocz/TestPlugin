@@ -122,12 +122,12 @@ public class TriggerEvents implements Listener {
         itemMeta1.setLore(Lore);
         Lore.clear();
         itemMeta1.setDisplayName("§cSlash");
-        warriorGUI.setItem(12, new ItemStack(Material.BARRIER));
-        Lore.addFirst("§8Work in Progress.");
+        warriorGUI.setItem(12, new ItemStack(Material.MACE));
+        Lore.addFirst("§8This ability has a 10 second cooldown.");
         ItemMeta itemMeta2 = warriorGUI.getItem(12).getItemMeta();
         itemMeta2.setLore(Lore);
         Lore.clear();
-        itemMeta2.setDisplayName("§4§kWIPAFDSK");
+        itemMeta2.setDisplayName("§2Ground Slam");
         warriorGUI.setItem(14, new ItemStack(Material.BARRIER));
         Lore.addFirst("§8Work in Progress.");
         ItemMeta itemMeta3 = warriorGUI.getItem(14).getItemMeta();
@@ -227,6 +227,7 @@ public class TriggerEvents implements Listener {
         event.getWhoClicked().removeScoreboardTag("fireball");
         event.getWhoClicked().removeScoreboardTag("meteor");
         event.getWhoClicked().removeScoreboardTag("heal");
+        event.getWhoClicked().removeScoreboardTag("groundslam");
         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
     }
     public void removeClass(InventoryClickEvent event) {
@@ -239,6 +240,7 @@ public class TriggerEvents implements Listener {
         event.getWhoClicked().removeScoreboardTag("fireball");
         event.getWhoClicked().removeScoreboardTag("meteor");
         event.getWhoClicked().removeScoreboardTag("heal");
+        event.getWhoClicked().removeScoreboardTag("groundslam");
         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
     }
 //EVENT TRIGGERS
@@ -306,6 +308,12 @@ public class TriggerEvents implements Listener {
                     if (event.getCurrentItem().getType() == Material.IRON_SWORD) {
                         removeAbility(event);
                         event.getWhoClicked().getScoreboardTags().add("slash");
+                        event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
+                        event.getWhoClicked().closeInventory();
+                    }
+                    if (event.getCurrentItem().getType() == Material.MACE) {
+                        removeAbility(event);
+                        event.getWhoClicked().getScoreboardTags().add("groundslam");
                         event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                         event.getWhoClicked().closeInventory();
                     }

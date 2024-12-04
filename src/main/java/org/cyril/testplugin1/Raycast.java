@@ -274,6 +274,77 @@ public class Raycast {
             }
         }.runTaskLater(Testplugin1.getInstance(), 40);
     }
+    public static void GroundSlam(String name) {
+        Player player = Bukkit.getPlayer(name);
+        player.addScoreboardTag("slamcooldown");
+        Vector plaunch = player.getLocation().getDirection();
+        plaunch.setY(1.4);
+        player.setVelocity(plaunch);
+        Random random = new Random();
+        int rndgs = random.nextInt(100000000);
+        String rndgstag = "gs" + rndgs;
+        final int[] limit = {1};
+        BukkitTask jump = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if(player.getLocation().subtract(0,0.2,0).getBlock().getType().isSolid()) {
+                    cancel();
+                    player.sendMessage("Boom!");
+                    BukkitTask repeat = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            if (limit[0] > 6) {
+                                String selector = String.format("@e[tag=%s,type=minecraft:armor_stand]", rndgstag);
+                                String selector2 = String.format("@e[tag=!slam,tag=!%s,type=!player,distance=..1.5]", rndgstag);
+                                List<Entity> Slam = Bukkit.selectEntities(Bukkit.getConsoleSender(), selector);
+                                List<Entity> Slamed = new ArrayList<>();
+                                for (Entity n : Slam) {
+                                    Slamed.addAll(Bukkit.selectEntities(n, selector2));
+                                    n.remove();
+                                }
+                                Slamed = Slamed.stream().distinct().collect(Collectors.toList());
+                                for (Entity n : Slamed) {
+                                    if (n instanceof LivingEntity) {
+                                        double x = n.getLocation().getX() - player.getLocation().getX();
+                                        double z = n.getLocation().getZ() - player.getLocation().getZ();
+                                        Vector launch = new Vector(x * 0.1, 0.8, z * 0.1);
+                                        n.setVelocity(launch);
+                                        int iframes = ((LivingEntity) n).getMaximumNoDamageTicks();
+                                        ((LivingEntity) n).setMaximumNoDamageTicks(0);
+                                        ((LivingEntity) n).damage(40);
+                                        ((LivingEntity) n).setMaximumNoDamageTicks(iframes);
+                                        player.sendMessage("Hit an entity: " + n.getType());
+                                    }
+                                }
+                                cancel();
+                            } else {
+                                for (double i = 0; i < 45; i = i + (double) 2 / limit[0]) {
+                                    double x = Math.sin(i);
+                                    double y = Math.cos(i);
+                                    Location clocation = player.getLocation();
+                                    clocation.add(x * limit[0], 0.5, y * limit[0]);
+                                    double x2 = clocation.getX();
+                                    double y2 = clocation.getY();
+                                    double z2 = clocation.getZ();
+                                    String armorstands = String.format("summon minecraft:armor_stand %s %s %s {Invisible:true,Invulnerable:true,NoGravity:true,Tags:[\"%s\",\"slam\"]}", x2, y2, z2, rndgstag);
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), armorstands);
+                                    player.getWorld().spawnParticle(Particle.CRIT, clocation, 20, 0, 0, 0, 0);
+                                }
+                                limit[0] = limit[0] + 1;
+                            }
+                        }
+                    }.runTaskTimer(Testplugin1.getInstance(), 0, 1);
+                }
+            }
+        }.runTaskTimer(Testplugin1.getInstance(), 5,1);
+        BukkitTask MeteorCooldown = new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.removeScoreboardTag("slamcooldown");
+                player.sendMessage("§aGround Slam ability is off cooldown.");
+            }
+        }.runTaskLater(Testplugin1.getInstance(), 200);
+    }
 //TRIGGER
     public static void Trigger(String name) {
         int i = 0;
@@ -308,6 +379,14 @@ public class Raycast {
             } else {
                 Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ITEM_FIRECHARGE_USE, SoundCategory.AMBIENT, 100, 0.5F);
                 ManaLance(name);
+            }
+        }
+        if (Bukkit.getPlayer(name).getScoreboardTags().contains("groundslam")) {
+            if(Bukkit.getPlayer(name).getScoreboardTags().contains("slamcooldown")) {
+                Bukkit.getPlayer(name).sendMessage("§cAbility on cooldown.");
+            } else {
+                Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ITEM_FIRECHARGE_USE, SoundCategory.AMBIENT, 100, 0.5F);
+                GroundSlam(name);
             }
         }
         if (Bukkit.getPlayer(name).getScoreboardTags().contains("raycast")) {
