@@ -276,6 +276,7 @@ public class Raycast {
     }
     public static void GroundSlam(String name) {
         Player player = Bukkit.getPlayer(name);
+        player.addScoreboardTag("gsinair");
         player.addScoreboardTag("slamcooldown");
         Vector plaunch = player.getLocation().getDirection();
         plaunch.setY(1.4);
@@ -287,9 +288,19 @@ public class Raycast {
         BukkitTask jump = new BukkitRunnable() {
             @Override
             public void run() {
+                player.setFallDistance(1);
                 if(player.getLocation().subtract(0,0.2,0).getBlock().getType().isSolid()) {
                     cancel();
+                    player.getWorld().playSound(player, Sound.ENTITY_GENERIC_EXPLODE, 100,1.4F);
+                    player.removeScoreboardTag("gsinair");
                     player.sendMessage("Boom!");
+                    BukkitTask MeteorCooldown = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            player.removeScoreboardTag("slamcooldown");
+                            player.sendMessage("§aGround Slam ability is off cooldown.");
+                        }
+                    }.runTaskLater(Testplugin1.getInstance(), 200);
                     BukkitTask repeat = new BukkitRunnable() {
                         @Override
                         public void run() {
@@ -333,17 +344,20 @@ public class Raycast {
                                 limit[0] = limit[0] + 1;
                             }
                         }
-                    }.runTaskTimer(Testplugin1.getInstance(), 0, 1);
+                    }.runTaskTimer(Testplugin1.getInstance(), 0, 0);
                 }
             }
         }.runTaskTimer(Testplugin1.getInstance(), 5,1);
-        BukkitTask MeteorCooldown = new BukkitRunnable() {
-            @Override
-            public void run() {
-                player.removeScoreboardTag("slamcooldown");
-                player.sendMessage("§aGround Slam ability is off cooldown.");
-            }
-        }.runTaskLater(Testplugin1.getInstance(), 200);
+    }
+    public static void SlamDash(String name) {
+        Player player = Bukkit.getPlayer(name);
+        Vector pvector = player.getLocation().getDirection();
+        player.getWorld().playSound(player, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 100, 0.6F);
+        pvector.setY(0);
+        pvector.normalize();
+        pvector.multiply(1.5);
+        pvector.setY(0.6);
+        player.setVelocity(pvector);
     }
 //TRIGGER
     public static void Trigger(String name) {
@@ -382,10 +396,12 @@ public class Raycast {
             }
         }
         if (Bukkit.getPlayer(name).getScoreboardTags().contains("groundslam")) {
-            if(Bukkit.getPlayer(name).getScoreboardTags().contains("slamcooldown")) {
+            if (Bukkit.getPlayer(name).getScoreboardTags().contains("gsinair")) {
+                SlamDash(name);
+            } else if (Bukkit.getPlayer(name).getScoreboardTags().contains("slamcooldown")) {
                 Bukkit.getPlayer(name).sendMessage("§cAbility on cooldown.");
             } else {
-                Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ITEM_FIRECHARGE_USE, SoundCategory.AMBIENT, 100, 0.5F);
+                Bukkit.getPlayer(name).playSound(Bukkit.getPlayer(name), Sound.ENTITY_GOAT_LONG_JUMP, SoundCategory.AMBIENT, 100, 0F);
                 GroundSlam(name);
             }
         }

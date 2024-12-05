@@ -5,10 +5,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -213,13 +215,13 @@ public class TriggerEvents implements Listener {
         event.getWhoClicked().openInventory(rangerGUI);
     }
 //MISC
-    public void menu(PlayerJoinEvent event) {
-        ItemMeta itemmeta = event.getPlayer().getInventory().getItem(8).getItemMeta();
+    public void menuItem(Player player) {
+        ItemMeta itemmeta = player.getInventory().getItem(8).getItemMeta();
         itemmeta.setDisplayName("§aMenu §7(Right Click)");
         List<String> description = new ArrayList<>();
         description.add("§8Rick-click to open the Menu.");
         itemmeta.setLore(description);
-        event.getPlayer().getInventory().getItem(8).setItemMeta(itemmeta);
+        player.getInventory().getItem(8).setItemMeta(itemmeta);
     }
     public void removeAbility(InventoryClickEvent event) {
         event.getWhoClicked().removeScoreboardTag("raycast");
@@ -245,6 +247,16 @@ public class TriggerEvents implements Listener {
     }
 //EVENT TRIGGERS
     @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        event.getDrops().removeIf(n -> n.getType() == Material.NETHER_STAR && n.getItemMeta().getDisplayName().equals("§aMenu §7(Right Click)"));
+    }
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        player.getInventory().setItem(8, new ItemStack(Material.NETHER_STAR,1));
+        menuItem(event.getPlayer());
+    }
+    @EventHandler
     public void onRightClick(PlayerInteractEvent event) {
         String action = String.valueOf(event.getAction());
         if (event.hasItem()) {
@@ -265,16 +277,16 @@ public class TriggerEvents implements Listener {
         if (event.getPlayer().getInventory().getItem(8) == null) {
             System.out.println(event.getPlayer().getDisplayName() + " nema nic na 9. slotu, davam spravny item.");
             event.getPlayer().getInventory().setItem(8, new ItemStack(Material.NETHER_STAR));
-            menu(event);
+            menuItem(event.getPlayer());
         } else if (event.getPlayer().getInventory().getItem(8).getType() != Material.NETHER_STAR) {
             String item = String.valueOf(event.getPlayer().getInventory().getItem(8).getType());
             System.out.println(event.getPlayer().getDisplayName() + " mel " + item + " na 9. slotu, davam spravny item.");
             event.getPlayer().getInventory().getItem(8).setType(Material.NETHER_STAR);
-            menu(event);
+            menuItem(event.getPlayer());
             event.getPlayer().getInventory().getItem(8).setAmount(1);
         } else {
             System.out.println(event.getPlayer().getDisplayName() + " ma spravny item na 9. slotu.");
-            menu(event);
+            menuItem(event.getPlayer());
             event.getPlayer().getInventory().getItem(8).setAmount(1);
         }
     }
@@ -433,7 +445,7 @@ public class TriggerEvents implements Listener {
     @EventHandler
     public void onHotbarDrop(PlayerDropItemEvent event) {
         event.getItemDrop().setGlowing(true);
-        if (event.getItemDrop().getItemStack().getType() == Material.NETHER_STAR){
+        if (event.getItemDrop().getItemStack().getType() == Material.NETHER_STAR && event.getItemDrop().getItemStack().getItemMeta().getDisplayName().equals("§aMenu §7(Right Click)")) {
             event.setCancelled(true);
         }
     }
