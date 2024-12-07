@@ -1,10 +1,12 @@
 package org.cyril.testplugin1;
 
 import org.bukkit.*;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -93,19 +95,25 @@ public class TriggerEvents implements Listener {
         Inventory classGUI = Bukkit.createInventory(null, 27, "Class Menu");
         List<String> Lore = new ArrayList<>();
         classGUI.setItem(10, new ItemStack(Material.IRON_SWORD));
-        Lore.addFirst("§8Select the Warrior class.");
+        Lore.addFirst("§8Click to select the Warrior class.");
+        Lore.addFirst("\n");
+        Lore.addFirst("§7Passive Ability: Boosts melee damage by §c35%.");
         ItemMeta itemMeta1 = classGUI.getItem(10).getItemMeta();
         itemMeta1.setLore(Lore);
         Lore.clear();
         itemMeta1.setDisplayName("§cWarrior");
         classGUI.setItem(13, new ItemStack(Material.BLAZE_ROD));
-        Lore.addFirst("§8Select the Mage class.");
+        Lore.addFirst("§8Click to select the Mage class.");
+        Lore.addFirst("\n");
+        Lore.addFirst("§7Passive Ability: Increases maximum mana by §b30");
         ItemMeta itemMeta2 = classGUI.getItem(13).getItemMeta();
         itemMeta2.setLore(Lore);
         Lore.clear();
         itemMeta2.setDisplayName("§5Mage");
         classGUI.setItem(16, new ItemStack(Material.BOW));
-        Lore.addFirst("§8Select the Ranger class.");
+        Lore.addFirst("§8Click to select the Ranger class.");
+        Lore.addFirst("\n");
+        Lore.addFirst("§7Passive Ability: Boosts projectile damage by §c35%");
         ItemMeta itemMeta3 = classGUI.getItem(16).getItemMeta();
         itemMeta3.setLore(Lore);
         Lore.clear();
@@ -274,6 +282,11 @@ public class TriggerEvents implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         System.out.println(event.getPlayer().getDisplayName() + " Joined.");
+        Player player = event.getPlayer();
+        player.removeScoreboardTag("manaregen");
+        player.removeScoreboardTag("cooldown");
+        player.removeScoreboardTag("gsinair");
+        Mana.ManaSB(player.getName());
         if (event.getPlayer().getInventory().getItem(8) == null) {
             System.out.println(event.getPlayer().getDisplayName() + " nema nic na 9. slotu, davam spravny item.");
             event.getPlayer().getInventory().setItem(8, new ItemStack(Material.NETHER_STAR));
@@ -288,6 +301,26 @@ public class TriggerEvents implements Listener {
             System.out.println(event.getPlayer().getDisplayName() + " ma spravny item na 9. slotu.");
             menuItem(event.getPlayer());
             event.getPlayer().getInventory().getItem(8).setAmount(1);
+        }
+    }
+    @EventHandler
+    public void onPlayerHit(EntityDamageEvent event) {
+        try {
+            if (event.getDamageSource().getCausingEntity().getType() == EntityType.PLAYER) {
+                Player player = (Player) event.getDamageSource().getCausingEntity();
+                if(player.getScoreboardTags().contains("warrior")) {
+                    if(event.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK || event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+                        event.setDamage(event.getDamage() * 1.35);
+                    }
+                } else if (player.getScoreboardTags().contains("ranger")) {
+                    if(event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+                        event.setDamage(event.getDamage() * 1.35);
+                    }
+                }
+                player.sendMessage(String.valueOf(event.getFinalDamage()));
+                player.sendMessage(String.valueOf(event.getCause()));
+            }
+        } catch (NullPointerException ignore) {
         }
     }
     @EventHandler
@@ -421,18 +454,21 @@ public class TriggerEvents implements Listener {
                     if (event.getCurrentItem().getType() == Material.IRON_SWORD) {
                         removeClass(event);
                         event.getWhoClicked().getScoreboardTags().add("warrior");
+                        Mana.ManaSB(name);
                         event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                         event.getWhoClicked().closeInventory();
                     }
                     if (event.getCurrentItem().getType() == Material.BLAZE_ROD) {
                         removeClass(event);
                         event.getWhoClicked().getScoreboardTags().add("mage");
+                        Mana.ManaSB(name);
                         event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                         event.getWhoClicked().closeInventory();
                     }
                     if (event.getCurrentItem().getType() == Material.BOW) {
                         removeClass(event);
                         event.getWhoClicked().getScoreboardTags().add("ranger");
+                        Mana.ManaSB(name);
                         event.getWhoClicked().sendMessage("Selected: " + event.getCurrentItem().getItemMeta().getDisplayName());
                         event.getWhoClicked().closeInventory();
                     }
