@@ -244,6 +244,7 @@ public class TriggerEvents implements Listener {
         event.getWhoClicked().removeScoreboardTag("warrior");
         event.getWhoClicked().removeScoreboardTag("mage");
         event.getWhoClicked().removeScoreboardTag("ranger");
+        event.getWhoClicked().addScoreboardTag("classswitch");
         //ABILITY RESET
         event.getWhoClicked().removeScoreboardTag("raycast");
         event.getWhoClicked().removeScoreboardTag("slash");

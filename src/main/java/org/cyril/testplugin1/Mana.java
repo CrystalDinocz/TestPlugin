@@ -28,6 +28,12 @@ public class Mana {
                 } catch(NullPointerException e) {
                     player.setScoreboard(sbmana);
                 }
+                if(player.getScoreboardTags().contains("classswitch")) {
+                    player.removeScoreboardTag("classswitch");
+                    player.removeScoreboardTag("manaregen");
+                    cancel();
+                    ManaSB(name);
+                }
                 int currmana = player.getScoreboard().getObjective("Mana").getScore("Mana:").getScore();
                 if(currmana >= finalMaxMana) {
                     playerMana.setScore(finalMaxMana);
