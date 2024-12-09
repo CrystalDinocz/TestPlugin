@@ -1,6 +1,7 @@
 package org.cyril.testplugin1;
 
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -47,14 +48,14 @@ public class Raycast {
                 if (n instanceof Player) {
                     Player healplayer = ((Player) n).getPlayer();
                     double currhealth = healplayer.getHealth();
-                    double healing = ((Player) n).getHealthScale() - currhealth;
-                    if (currhealth <= 10) {
-                        double afterheal = currhealth + 10;
+                    double healing = ((Player) n).getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() - currhealth;
+                    if ((healplayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()/5) <= healing) {
+                        double afterheal = currhealth + (healplayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()/5);
                         ((Player) n).setHealth(afterheal);
-                        player.sendMessage("Healed player " + healplayer.getName() + " for " + (float) healing + " hp. " + (float) currhealth + " -> " + (float) afterheal);
+                        player.sendMessage("Healed player " + healplayer.getName() + " for " + (float) (healplayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()/5) + " hp. " + (float) currhealth + " -> " + (float) afterheal);
                     } else {
-                        ((Player) n).setHealth(((Player) n).getHealthScale());
-                        player.sendMessage("Healed player " + healplayer.getName() + " for " + (float) healing + " hp. " + (float) currhealth + " -> 20.0");
+                        ((Player) n).setHealth(((Player) n).getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                        player.sendMessage("Healed player " + healplayer.getName() + " for " + (float) healing + " hp. " + (float) currhealth + " -> " + healplayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
                     }
                 }
             }

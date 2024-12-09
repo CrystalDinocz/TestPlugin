@@ -1,6 +1,7 @@
 package org.cyril.testplugin1;
 
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -287,6 +288,7 @@ public class TriggerEvents implements Listener {
         player.removeScoreboardTag("manaregen");
         player.removeScoreboardTag("cooldown");
         player.removeScoreboardTag("gsinair");
+        player.removeScoreboardTag("manadisplay");
         Mana.ManaSB(player.getName());
         if (event.getPlayer().getInventory().getItem(8) == null) {
             System.out.println(event.getPlayer().getDisplayName() + " nema nic na 9. slotu, davam spravny item.");
@@ -428,6 +430,7 @@ public class TriggerEvents implements Listener {
             }
             if(event.getInventory().getItem(10).getItemMeta().getDisplayName().equals("§eCreative")) {
                 try {
+                    double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
                     if(event.getCurrentItem().getType() == Material.GOLDEN_APPLE) {
                         event.getWhoClicked().setGameMode(GameMode.CREATIVE);
                         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
@@ -439,11 +442,11 @@ public class TriggerEvents implements Listener {
                         player.closeInventory();
                     }
                     if(event.getCurrentItem().getType() == Material.RED_CONCRETE) {
-                        player.setHealthScale(player.getHealthScale() - 1);
+                        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth - 1);
                         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
                     }
                     if(event.getCurrentItem().getType() == Material.LIME_CONCRETE) {
-                        player.setHealthScale(player.getHealthScale() + 1);
+                        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth + 1);
                         Bukkit.getPlayer(event.getWhoClicked().getName()).playSound(event.getWhoClicked(), Sound.BLOCK_LEVER_CLICK, SoundCategory.AMBIENT, 100, 2);
                     }
                 } catch (NullPointerException ignored) {

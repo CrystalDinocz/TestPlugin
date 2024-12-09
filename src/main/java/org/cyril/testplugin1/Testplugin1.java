@@ -14,6 +14,7 @@ public final class Testplugin1 extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TriggerEvents(), this);
         for(Player n : Bukkit.getOnlinePlayers()) {
             n.removeScoreboardTag("manaregen");
+            n.removeScoreboardTag("manadisplay");
             n.removeScoreboardTag("cooldown");
             n.removeScoreboardTag("gsinair");
             Mana.ManaSB(n.getName());
